@@ -42,25 +42,32 @@ function promptUser() {
   // Prompt user with two questions.
   var questions = [
     {
-      type: 'input',
+      type: 'number',
       name: 'item_id',
       message: 'What is the item id of the item you want to buy?'
     },
     {
-      type: 'input',
+      type: 'number',
       name: 'purchase_quantity',
       message: 'How many would you like to buy?'
     }
   ];
 
   inquirer.prompt(questions).then(function(answers) {
-    // Check if there is sufficient quantity to meet user's order.
-    // How do I map item_id from Inquirer to stock_quantity from mysql? 
-    connection.query('SELECT * FROM products WHERE item_id = ?', [answers.item_id], function(error, results, fields) {
-      // SEEMS SOMETHING IS NOT WORKING HERE, answers.purchase_quantity IS NOT BEING READ?
-      if (answers.purchase_quantity > results.stock_quantity) {
+    connection.query('SELECT * FROM products WHERE item_id = ?', [answers.item_id], function(err, res, fields) {
+      if (err) throw err;
+    
+      // Check if there is sufficient quantity to meet user's order.
+      // res.stock_quantity IS NOT DEFINED.
+      // I NEED TO KNOW WHAT res LOOKS LIKE.
+            
+      // If insufficient quantity, log message advising so.
+      if (answers.purchase_quantity > res[0].stock_quantity) {
         console.log('Insufficient quantity in stock.');
       }
-    });
+
+    });  
+        
   });
+      
 }

@@ -56,14 +56,29 @@ function promptUser() {
   inquirer.prompt(questions).then(function(answers) {
     connection.query('SELECT * FROM products WHERE item_id = ?', [answers.item_id], function(err, res, fields) {
       if (err) throw err;
-    
+      
+      var itemId = answers.item_id;
+      var purchQuantity = answers.purchase_quantity;
+      var inStock = res[0].stock_quantity;
+      var endingStock = inStock - purchQuantity;
+      var total = res[0].price * purchQuantity;
+      var item = res[0].product_name;
+
       // Check if there is sufficient quantity to meet user's order.
-      // res.stock_quantity IS NOT DEFINED.
-      // I NEED TO KNOW WHAT res LOOKS LIKE.
-            
       // If insufficient quantity, log message advising so.
-      if (answers.purchase_quantity > res[0].stock_quantity) {
+      if (purchQuantity > inStock) {
         console.log('Insufficient quantity in stock.');
+      } else {
+        // Fulfill order and update SQL database to reflect remaining stock quantity.
+        // Subtract answers.purchase_quantity from res[0].stock_quantity.
+        connection.query(
+          'UPDATE products SET stock_quantity = ? WHERE item_id = ?', 
+          [endingStock, itemId], function(err, res) {
+            if (err) throw err;
+            
+            console.log('Successfully purchased ' + purchQuantity + ' ' + item + 
+            '(s).  Your total is ' + total);
+        });
       }
 
     });  

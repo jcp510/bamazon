@@ -79,6 +79,8 @@ function promptUser() {
             console.log('Successfully purchased ' + purchQuantity + ' ' + item + 
             '(s).  Your total is ' + total);
         });
+
+        start();
       }
 
     });  
